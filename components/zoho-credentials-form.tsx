@@ -47,14 +47,14 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Zoho Books Configuration</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-900">Zoho Books Configuration</h1>
       <p className="mb-6 text-gray-600">
         Enter your Zoho Books API credentials to get started. You can obtain these from your Zoho Developer Console.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="clientId" className="block text-sm font-medium mb-2">
+          <label htmlFor="clientId" className="block text-sm font-medium mb-2 text-gray-900">
             Client ID *
           </label>
           <input
@@ -70,7 +70,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
         </div>
 
         <div>
-          <label htmlFor="clientSecret" className="block text-sm font-medium mb-2">
+          <label htmlFor="clientSecret" className="block text-sm font-medium mb-2 text-gray-900">
             Client Secret *
           </label>
           <input
@@ -86,7 +86,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
         </div>
 
         <div>
-          <label htmlFor="redirectUrl" className="block text-sm font-medium mb-2">
+          <label htmlFor="redirectUrl" className="block text-sm font-medium mb-2 text-gray-900">
             Redirect URL *
           </label>
           <input
@@ -105,7 +105,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
         </div>
 
         <div>
-          <label htmlFor="organizationId" className="block text-sm font-medium mb-2">
+          <label htmlFor="organizationId" className="block text-sm font-medium mb-2 text-gray-900">
             Organization ID (Optional)
           </label>
           <input

@@ -114,15 +114,15 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Create Invoice</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-900">Create Invoice</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Customer Information */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Customer Information</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Customer Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="customerName" className="block text-sm font-medium mb-2">
+              <label htmlFor="customerName" className="block text-sm font-medium mb-2 text-gray-900">
                 Customer Name *
               </label>
               <input
@@ -135,7 +135,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="customerEmail" className="block text-sm font-medium mb-2">
+              <label htmlFor="customerEmail" className="block text-sm font-medium mb-2 text-gray-900">
                 Customer Email
               </label>
               <input
@@ -151,10 +151,10 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
         {/* Invoice Details */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Invoice Details</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Invoice Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="invoiceNumber" className="block text-sm font-medium mb-2">
+              <label htmlFor="invoiceNumber" className="block text-sm font-medium mb-2 text-gray-900">
                 Invoice Number
               </label>
               <input
@@ -167,7 +167,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="date" className="block text-sm font-medium mb-2">
+              <label htmlFor="date" className="block text-sm font-medium mb-2 text-gray-900">
                 Invoice Date *
               </label>
               <input
@@ -180,7 +180,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="dueDate" className="block text-sm font-medium mb-2">
+              <label htmlFor="dueDate" className="block text-sm font-medium mb-2 text-gray-900">
                 Due Date *
               </label>
               <input
@@ -197,10 +197,10 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
         {/* Add Items */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Add Items</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Add Items</h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
             <div className="md:col-span-2">
-              <label htmlFor="itemName" className="block text-sm font-medium mb-2">
+              <label htmlFor="itemName" className="block text-sm font-medium mb-2 text-gray-900">
                 Item Name *
               </label>
               <input
@@ -212,7 +212,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="quantity" className="block text-sm font-medium mb-2">
+              <label htmlFor="quantity" className="block text-sm font-medium mb-2 text-gray-900">
                 Quantity *
               </label>
               <input
@@ -226,7 +226,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="rate" className="block text-sm font-medium mb-2">
+              <label htmlFor="rate" className="block text-sm font-medium mb-2 text-gray-900">
                 Rate *
               </label>
               <input
@@ -240,7 +240,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="itemTax" className="block text-sm font-medium mb-2">
+              <label htmlFor="itemTax" className="block text-sm font-medium mb-2 text-gray-900">
                 Tax (%)
               </label>
               <input
@@ -255,7 +255,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             </div>
           </div>
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium mb-2">
+            <label htmlFor="description" className="block text-sm font-medium mb-2 text-gray-900">
               Description
             </label>
             <input
@@ -278,7 +278,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         {/* Items List */}
         {invoice.items.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Invoice Items</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">Invoice Items</h2>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
@@ -341,7 +341,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
         {/* Notes */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Additional Notes</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Additional Notes</h2>
           <textarea
             value={invoice.notes}
             onChange={(e) => setInvoice({ ...invoice, notes: e.target.value })}

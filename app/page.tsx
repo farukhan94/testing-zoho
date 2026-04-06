@@ -167,7 +167,7 @@ export default function Home() {
         ) : !isAuthenticated ? (
           <div className="max-w-2xl mx-auto p-6">
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <h2 className="text-2xl font-bold mb-4">Authenticate with Zoho Books</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-900">Authenticate with Zoho Books</h2>
               <p className="mb-6 text-gray-600">
                 Click the button below to connect your Zoho Books account. You will be redirected to Zoho to authorize access.
               </p>
