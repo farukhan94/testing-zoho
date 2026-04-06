@@ -64,7 +64,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             value={credentials.clientId}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="1000.XXXXXXXXXX"
           />
         </div>
@@ -80,7 +80,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             value={credentials.clientSecret}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Your client secret"
           />
         </div>
@@ -96,7 +96,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             value={credentials.redirectUrl}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="https://your-app.vercel.app/callback"
           />
           <p className="text-sm text-gray-500 mt-1">
@@ -114,7 +114,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             name="organizationId"
             value={credentials.organizationId}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Your organization ID"
           />
         </div>

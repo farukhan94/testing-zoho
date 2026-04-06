@@ -131,7 +131,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 value={invoice.customerName}
                 onChange={(e) => setInvoice({ ...invoice, customerName: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -143,7 +143,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 id="customerEmail"
                 value={invoice.customerEmail}
                 onChange={(e) => setInvoice({ ...invoice, customerEmail: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 id="invoiceNumber"
                 value={invoice.invoiceNumber}
                 onChange={(e) => setInvoice({ ...invoice, invoiceNumber: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 placeholder="Auto-generated"
               />
             </div>
@@ -176,7 +176,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 value={invoice.date}
                 onChange={(e) => setInvoice({ ...invoice, date: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -189,7 +189,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 value={invoice.dueDate}
                 onChange={(e) => setInvoice({ ...invoice, dueDate: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 id="itemName"
                 value={currentItem.name}
                 onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -222,7 +222,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 step="0.01"
                 value={currentItem.quantity}
                 onChange={(e) => setCurrentItem({ ...currentItem, quantity: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -236,7 +236,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 step="0.01"
                 value={currentItem.rate}
                 onChange={(e) => setCurrentItem({ ...currentItem, rate: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -250,7 +250,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
                 step="0.01"
                 value={currentItem.tax}
                 onChange={(e) => setCurrentItem({ ...currentItem, tax: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
               id="description"
               value={currentItem.description}
               onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
           <button
@@ -346,7 +346,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
             value={invoice.notes}
             onChange={(e) => setInvoice({ ...invoice, notes: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Any additional notes or terms..."
           />
         </div>
