@@ -1,64 +1,187 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import ZohoCredentialsForm from '@/components/zoho-credentials-form';
+import InvoiceForm from '@/components/invoice-form';
+import { 
+  getCredentials, 
+  getTokens, 
+  saveTokens, 
+  isTokenValid,
+  clearCredentials,
+  type ZohoCredentials 
+} from '@/lib/zoho-storage';
+import { Invoice } from '@/lib/types';
 
 export default function Home() {
+  const [hasCredentials, setHasCredentials] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [credentials, setCredentials] = useState<ZohoCredentials | null>(null);
+
+  useEffect(() => {
+    // Check if we have credentials
+    const stored = getCredentials();
+    setCredentials(stored);
+    setHasCredentials(!!stored);
+
+    // Check if we have valid tokens
+    const tokens = getTokens();
+    setIsAuthenticated(isTokenValid(tokens));
+
+    // Check for OAuth callback code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+
+    if (error) {
+      alert('Authentication error: ' + error);
+      window.history.replaceState({}, '', '/');
+    } else if (code && stored) {
+      // Exchange code for tokens
+      exchangeCodeForTokens(code, stored);
+    }
+
+    setIsLoading(false);
+  }, []);
+
+  const exchangeCodeForTokens = async (code: string, creds: ZohoCredentials) => {
+    try {
+      const response = await fetch('/api/zoho/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          clientId: creds.clientId,
+          clientSecret: creds.clientSecret,
+          redirectUrl: creds.redirectUrl,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get tokens');
+      }
+
+      // Save tokens
+      saveTokens({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        expiresAt: Date.now() + (data.expiresIn * 1000),
+      });
+
+      setIsAuthenticated(true);
+      
+      // Clean up URL
+      window.history.replaceState({}, '', '/');
+    } catch (error) {
+      alert('Failed to authenticate: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      window.history.replaceState({}, '', '/');
+    }
+  };
+
+  const handleCredentialsSaved = () => {
+    const stored = getCredentials();
+    setCredentials(stored);
+    setHasCredentials(true);
+  };
+
+  const handleAuthenticate = () => {
+    if (!credentials) return;
+
+    // Redirect to Zoho OAuth authorization
+    const scopes = 'ZohoBooks.fullaccess.all';
+    const authUrl = `https://accounts.zoho.com/oauth/v2/auth?scope=${scopes}&client_id=${credentials.clientId}&response_type=code&redirect_uri=${encodeURIComponent(credentials.redirectUrl)}&access_type=offline`;
+    
+    window.location.href = authUrl;
+  };
+
+  const handleInvoiceSubmit = async (invoice: Invoice) => {
+    const tokens = getTokens();
+    if (!tokens || !credentials?.organizationId) {
+      alert('Missing authentication or organization ID');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/zoho/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice,
+          accessToken: tokens.accessToken,
+          organizationId: credentials.organizationId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create invoice');
+      }
+
+      alert('Invoice created successfully in Zoho Books!');
+      console.log('Created invoice:', data.invoice);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleReset = () => {
+    if (confirm('Are you sure you want to clear all credentials and start over?')) {
+      clearCredentials();
+      setHasCredentials(false);
+      setIsAuthenticated(false);
+      setCredentials(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">Zoho Books Integration</h1>
+          {hasCredentials && (
+            <button
+              onClick={handleReset}
+              className="text-sm text-red-600 hover:text-red-800"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Reset Credentials
+            </button>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main className="py-10">
+        {!hasCredentials ? (
+          <ZohoCredentialsForm onCredentialsSaved={handleCredentialsSaved} />
+        ) : !isAuthenticated ? (
+          <div className="max-w-2xl mx-auto p-6">
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <h2 className="text-2xl font-bold mb-4">Authenticate with Zoho Books</h2>
+              <p className="mb-6 text-gray-600">
+                Click the button below to connect your Zoho Books account. You will be redirected to Zoho to authorize access.
+              </p>
+              <button
+                onClick={handleAuthenticate}
+                className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold"
+              >
+                Connect to Zoho Books
+              </button>
+            </div>
+          </div>
+        ) : (
+          <InvoiceForm onSubmit={handleInvoiceSubmit} />
+        )}
       </main>
     </div>
   );

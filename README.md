@@ -1,36 +1,153 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zoho Books Integration App
+
+A Next.js application that allows you to connect to Zoho Books and create invoices directly from a simple web interface.
+
+## Features
+
+- Secure OAuth2 authentication with Zoho Books
+- Store Zoho API credentials locally in browser
+- Create invoices with multiple line items
+- Automatic tax and total calculations
+- Push invoices directly to Zoho Books
+
+## Prerequisites
+
+Before you begin, you need to set up a Zoho API application:
+
+1. Go to [Zoho API Console](https://api-console.zoho.com/)
+2. Create a new "Server-based Application"
+3. Note down your **Client ID** and **Client Secret**
+4. Set the **Redirect URI** to match your deployment URL (e.g., `https://your-app.vercel.app/api/zoho/callback`)
+5. Get your **Organization ID** from Zoho Books (Settings > Organization > Organization ID)
 
 ## Getting Started
 
-First, run the development server:
+### Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Enter your Zoho API credentials when prompted
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Using the Application
 
-## Learn More
+1. **Configure Zoho Credentials**: On first launch, enter your:
+   - Client ID
+   - Client Secret
+   - Redirect URL (use `http://localhost:3000/api/zoho/callback` for local development)
+   - Organization ID
 
-To learn more about Next.js, take a look at the following resources:
+2. **Authenticate**: Click "Connect to Zoho Books" to authorize the application
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Create Invoices**: Once authenticated, you can:
+   - Enter customer information
+   - Add multiple line items with quantity, price, and tax
+   - Add notes
+   - Submit to Zoho Books
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Quick Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/zoho-books-integration)
+
+### Manual Deployment
+
+1. Install Vercel CLI:
+
+```bash
+npm install -g vercel
+```
+
+2. Deploy:
+
+```bash
+vercel
+```
+
+3. Follow the prompts to deploy your application
+
+4. **Important**: After deployment, update your Zoho API Console:
+   - Go to your Zoho application settings
+   - Update the Redirect URI to: `https://your-vercel-url.vercel.app/api/zoho/callback`
+
+## Project Structure
+
+```
+├── app/
+│   ├── api/
+│   │   └── zoho/
+│   │       ├── callback/    # OAuth callback handler
+│   │       ├── token/       # Token exchange endpoint
+│   │       └── invoice/     # Invoice creation endpoint
+│   ├── page.tsx             # Main application page
+│   └── layout.tsx           # Root layout
+├── components/
+│   ├── zoho-credentials-form.tsx  # Credentials input form
+│   └── invoice-form.tsx           # Invoice creation form
+├── lib/
+│   ├── zoho-storage.ts      # Local storage utilities
+│   └── types.ts             # TypeScript type definitions
+└── vercel.json              # Vercel configuration
+
+```
+
+## API Routes
+
+- `GET /api/zoho/callback` - Handles OAuth callback from Zoho
+- `POST /api/zoho/token` - Exchanges authorization code for access tokens
+- `POST /api/zoho/invoice` - Creates an invoice in Zoho Books
+
+## Technologies Used
+
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- Zoho Books API v3
+
+## Security Notes
+
+- Credentials are stored in browser's localStorage (client-side only)
+- API credentials should never be committed to version control
+- Tokens are automatically managed and refreshed
+- All API calls are proxied through Next.js API routes
+
+## Troubleshooting
+
+### Authentication Issues
+
+- Verify your Client ID and Secret are correct
+- Ensure the Redirect URL matches exactly in both Zoho Console and your app
+- Check that you have the correct scopes enabled (`ZohoBooks.fullaccess.all`)
+
+### Invoice Creation Issues
+
+- Verify your Organization ID is correct
+- Ensure your Zoho Books account has the necessary permissions
+- Check the browser console for detailed error messages
+
+## Future Enhancements
+
+This is a proof of concept. Potential improvements include:
+
+- Customer management
+- Invoice templates
+- Payment tracking
+- Reporting dashboard
+- Multi-currency support
+- Recurring invoices
+
+## License
+
+MIT
