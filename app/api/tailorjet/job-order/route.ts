@@ -13,11 +13,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique ID for each item
-    const itemsWithIds = jobOrder.items.map((item: any) => ({
-      ...item,
-      id: randomUUID(),
-    }));
+    // Use items as-is, they already have IDs from the frontend
+    const itemsWithIds = jobOrder.items;
 
     // Build the TailorJet job order payload
     const tailorjetPayload = {

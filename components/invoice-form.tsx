@@ -98,6 +98,7 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
     const amountInclVat = amountExclVat + vatAmount;
 
     const tailorjetItem: TailorJetJobOrderItem = {
+      id: crypto.randomUUID(), // Generate unique ID for this line item
       item: {
         id: selectedTailorJetItem.id,
         item_code: selectedTailorJetItem.item_code,
