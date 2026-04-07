@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { invoice, accessToken, organizationId } = body;
+    const { invoice, accessToken, organizationId, customerId } = body;
 
-    if (!invoice || !accessToken || !organizationId) {
+    if (!invoice || !accessToken || !organizationId || !customerId) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     // Transform our invoice format to Zoho Books format
     const zohoInvoice = {
-      customer_name: invoice.customerName,
+      customer_id: customerId,
       date: invoice.date,
       due_date: invoice.dueDate,
       ...(invoice.invoiceNumber && { invoice_number: invoice.invoiceNumber }),

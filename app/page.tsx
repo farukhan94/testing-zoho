@@ -105,24 +105,46 @@ export default function Home() {
     }
 
     try {
-      const response = await fetch('/api/zoho/invoice', {
+      // Step 1: Find or create customer
+      const customerResponse = await fetch('/api/zoho/customer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          invoice,
+          customerName: invoice.customerName,
+          customerEmail: invoice.customerEmail,
           accessToken: tokens.accessToken,
           organizationId: credentials.organizationId,
         }),
       });
 
-      const data = await response.json();
+      const customerData = await customerResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create invoice');
+      if (!customerResponse.ok) {
+        throw new Error(customerData.error || 'Failed to find or create customer');
+      }
+
+      console.log(`Customer ${customerData.existing ? 'found' : 'created'}:`, customerData.customer);
+
+      // Step 2: Create invoice with customer_id
+      const invoiceResponse = await fetch('/api/zoho/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoice,
+          customerId: customerData.customerId,
+          accessToken: tokens.accessToken,
+          organizationId: credentials.organizationId,
+        }),
+      });
+
+      const invoiceData = await invoiceResponse.json();
+
+      if (!invoiceResponse.ok) {
+        throw new Error(invoiceData.error || 'Failed to create invoice');
       }
 
       alert('Invoice created successfully in Zoho Books!');
-      console.log('Created invoice:', data.invoice);
+      console.log('Created invoice:', invoiceData.invoice);
     } catch (error) {
       throw error;
     }
