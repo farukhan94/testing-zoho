@@ -3,6 +3,7 @@ export interface ZohoCredentials {
   clientSecret: string;
   redirectUrl: string;
   organizationId?: string;
+  tailorjetToken?: string;
 }
 
 export interface ZohoTokens {

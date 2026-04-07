@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Invoice, InvoiceItem } from '@/lib/types';
+import { Invoice, InvoiceItem, TailorJetItem, TailorJetJobOrder, TailorJetJobOrderItem } from '@/lib/types';
+import ItemSearch from './item-search';
 
 interface InvoiceFormProps {
-  onSubmit: (invoice: Invoice) => Promise<void>;
+  onSubmit: (invoice: Invoice, tailorjetData: any) => Promise<void>;
+  bearerToken: string;
 }
 
-export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
+export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [invoice, setInvoice] = useState<Invoice>({
     customerName: '',
@@ -30,6 +32,8 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
     tax: 0,
   });
 
+  const [tailorjetItems, setTailorjetItems] = useState<TailorJetJobOrderItem[]>([]);
+
   const calculateItemTotal = (item: Omit<InvoiceItem, 'id' | 'total'>) => {
     const subtotal = item.quantity * item.rate;
     const taxAmount = subtotal * ((item.tax || 0) / 100);
@@ -51,6 +55,17 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
       tax,
       total: subtotal + tax,
     };
+  };
+
+  const handleItemSelect = (tailorjetItem: TailorJetItem) => {
+    // Set the current item with TailorJet data
+    setCurrentItem({
+      name: `${tailorjetItem.item_code} - ${tailorjetItem.name.en}`,
+      description: '',
+      quantity: 1,
+      rate: parseFloat(tailorjetItem.unit_price),
+      tax: parseFloat(tailorjetItem.vat_group.vat_percentage),
+    });
   };
 
   const addItem = () => {
@@ -104,7 +119,86 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
     setIsLoading(true);
     try {
-      await onSubmit(invoice);
+      // Build TailorJet job order data - using placeholder values for now
+      const tailorjetData = {
+        order_date: invoice.date,
+        trial_date: invoice.date,
+        due_date: invoice.dueDate,
+        customer: {
+          id: 'e1990885-7f4a-4fc2-81f4-b72b2059af9e', // Placeholder - should come from form
+          name: { en: invoice.customerName },
+          label: invoice.customerName,
+          country: { id: '0adb6229-fae2-472f-af1e-168bcc9218ab', label: 'BAHRAIN' },
+          phone: '-',
+          vat_group: { id: '8f6a6b25-4149-4f42-83d4-2ce480fdcd59', label: 'Domestic R' },
+          vat_number: '-',
+          is_domestic: 1,
+          address1: [],
+          address2: 'building: -, road: -, flat: -, block: -, area: -',
+        },
+        customer_name: { en: invoice.customerName },
+        phone_number: '-',
+        vat_number: '-',
+        is_domestic: true,
+        address1: [],
+        address2: 'building: -, road: -, flat: -, block: -, area: -',
+        country: { id: '0adb6229-fae2-472f-af1e-168bcc9218ab', label: 'BAHRAIN' },
+        location: { id: 'cc29727c-76a7-423e-8150-a67fe12797ef', label: 'Manama (LOC-FSGQEWIXFNLEV)', is_primary: 0 },
+        customer_location: { id: 'a420edfe-8f0e-4a44-b69d-59bf0de06516', label: 'Showroom (CL-8OTQRODRZV7IX)', is_primary: 1 },
+        vat_group: { id: '8f6a6b25-4149-4f42-83d4-2ce480fdcd59', label: 'Domestic R' },
+        branch: { id: '5349a577-ead9-11f0-8047-e4a8dfd375a3', name: 'MANAMA', label: 'MANAMA' },
+        items: invoice.items.map((item) => {
+          const discountPercentage = 0;
+          const lineAmount = item.quantity * item.rate;
+          const discountAmount = lineAmount * (discountPercentage / 100);
+          const amountExclVat = lineAmount - discountAmount;
+          const vatAmount = amountExclVat * ((item.tax || 0) / 100);
+          const amountInclVat = amountExclVat + vatAmount;
+          
+          return {
+            item: {
+              id: item.id,
+              item_code: item.name.split(' - ')[0] || item.name,
+              label: item.name,
+            },
+            item_description: item.description || '',
+            unit: 'Pcs',
+            quantity: item.quantity.toString(),
+            unit_price: item.rate.toFixed(3),
+            discount_percentage: discountPercentage.toString(),
+            line_amount: amountExclVat.toFixed(3),
+            vat_amount: vatAmount.toFixed(3),
+            header_discount: '0.000',
+            amount_excl_vat: amountExclVat.toFixed(3),
+            amount_incl_vat: amountInclVat.toFixed(3),
+            vat_product_group: {
+              id: 'b4e09ae9-e375-4c37-95f0-fdf0c21df353',
+              label: `Vat ${item.tax || 0}`,
+              vat_percentage: (item.tax || 0).toFixed(2),
+            },
+            vat_percentage: (item.tax || 0).toFixed(2),
+            discount_amount: discountAmount.toFixed(3),
+          };
+        }),
+        order_detail_info: '',
+        discount_percentage: '',
+        discount_amount: '0.000',
+        gross_total: invoice.subtotal.toFixed(3),
+        sub_total: invoice.subtotal.toFixed(3),
+        vat_amount: invoice.tax.toFixed(3),
+        is_advance_job: false,
+        net_total: invoice.total.toFixed(3),
+        advance_payment: '0.000',
+        balance: invoice.total.toFixed(3),
+        payment: '0.000',
+        payment_type: '',
+        payment_date: invoice.date,
+        payment_amount: '',
+        payment_reference: '',
+        payments: [],
+      };
+
+      await onSubmit(invoice, tailorjetData);
     } catch (error) {
       alert('Error submitting invoice: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
@@ -198,6 +292,15 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
         {/* Add Items */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-900">Add Items</h2>
+          
+          {/* Item Search */}
+          <div className="mb-4">
+            <ItemSearch 
+              bearerToken={bearerToken} 
+              onItemSelect={handleItemSelect}
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
             <div className="md:col-span-2">
               <label htmlFor="itemName" className="block text-sm font-medium mb-2 text-gray-900">

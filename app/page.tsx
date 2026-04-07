@@ -97,15 +97,34 @@ export default function Home() {
     window.location.href = authUrl;
   };
 
-  const handleInvoiceSubmit = async (invoice: Invoice) => {
+  const handleInvoiceSubmit = async (invoice: Invoice, tailorjetData: any) => {
     const tokens = getTokens();
-    if (!tokens || !credentials?.organizationId) {
-      alert('Missing authentication or organization ID');
+    if (!tokens || !credentials?.organizationId || !credentials?.tailorjetToken) {
+      alert('Missing authentication, organization ID, or TailorJet token');
       return;
     }
 
     try {
-      // Step 1: Find or create customer
+      // Step 1: Create job order in TailorJet
+      const jobOrderResponse = await fetch('/api/tailorjet/job-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobOrder: tailorjetData,
+          bearerToken: credentials.tailorjetToken,
+        }),
+      });
+
+      const jobOrderData = await jobOrderResponse.json();
+
+      if (!jobOrderResponse.ok) {
+        throw new Error(jobOrderData.error || 'Failed to create job order in TailorJet');
+      }
+
+      console.log('TailorJet job order created:', jobOrderData.jobOrder);
+      const orderNumber = jobOrderData.orderNumber;
+
+      // Step 2: Find or create customer in Zoho
       const customerResponse = await fetch('/api/zoho/customer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,12 +144,17 @@ export default function Home() {
 
       console.log(`Customer ${customerData.existing ? 'found' : 'created'}:`, customerData.customer);
 
-      // Step 2: Create invoice with customer_id
+      // Step 3: Create invoice in Zoho Books with order number from TailorJet
+      const invoiceWithOrderNumber = {
+        ...invoice,
+        invoiceNumber: orderNumber, // Use TailorJet order number
+      };
+
       const invoiceResponse = await fetch('/api/zoho/invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          invoice,
+          invoice: invoiceWithOrderNumber,
           customerId: customerData.customerId,
           accessToken: tokens.accessToken,
           organizationId: credentials.organizationId,
@@ -143,7 +167,7 @@ export default function Home() {
         throw new Error(invoiceData.error || 'Failed to create invoice');
       }
 
-      alert('Invoice created successfully in Zoho Books!');
+      alert(`Success! Job Order ${orderNumber} created in TailorJet and invoice created in Zoho Books!`);
       console.log('Created invoice:', invoiceData.invoice);
     } catch (error) {
       throw error;
@@ -202,7 +226,10 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <InvoiceForm onSubmit={handleInvoiceSubmit} />
+          <InvoiceForm 
+            onSubmit={handleInvoiceSubmit} 
+            bearerToken={credentials?.tailorjetToken || ''} 
+          />
         )}
       </main>
     </div>

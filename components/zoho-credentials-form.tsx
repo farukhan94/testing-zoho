@@ -13,6 +13,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
     clientSecret: '',
     redirectUrl: '',
     organizationId: '',
+    tailorjetToken: '',
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,7 +75,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             Client Secret *
           </label>
           <input
-            type="password"
+            type="text"
             id="clientSecret"
             name="clientSecret"
             value={credentials.clientSecret}
@@ -106,7 +107,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
 
         <div>
           <label htmlFor="organizationId" className="block text-sm font-medium mb-2 text-gray-900">
-            Organization ID (Optional)
+            Organization ID *
           </label>
           <input
             type="text"
@@ -114,9 +115,29 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             name="organizationId"
             value={credentials.organizationId}
             onChange={handleChange}
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             placeholder="Your organization ID"
           />
+        </div>
+
+        <div>
+          <label htmlFor="tailorjetToken" className="block text-sm font-medium mb-2 text-gray-900">
+            TailorJet Bearer Token *
+          </label>
+          <input
+            type="text"
+            id="tailorjetToken"
+            name="tailorjetToken"
+            value={credentials.tailorjetToken}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOi..."
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Bearer token for TailorJet API authentication
+          </p>
         </div>
 
         <button
