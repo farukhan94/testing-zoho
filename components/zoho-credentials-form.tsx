@@ -97,7 +97,7 @@ export default function ZohoCredentialsForm({ onCredentialsSaved }: ZohoCredenti
             onChange={handleChange}
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            placeholder="https://your-app.vercel.app/callback"
+            placeholder="https://your-app.vercel.app/api/zoho/callback"
           />
           <p className="text-sm text-gray-500 mt-1">
             This should match the redirect URI configured in your Zoho app

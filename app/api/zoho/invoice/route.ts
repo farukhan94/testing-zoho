@@ -15,9 +15,6 @@ export async function POST(request: NextRequest) {
     // Transform our invoice format to Zoho Books format
     const zohoInvoice = {
       customer_name: invoice.customerName,
-      ...(invoice.customerEmail && { 
-        contact_persons: [{ email: invoice.customerEmail }] 
-      }),
       date: invoice.date,
       due_date: invoice.dueDate,
       ...(invoice.invoiceNumber && { invoice_number: invoice.invoiceNumber }),
