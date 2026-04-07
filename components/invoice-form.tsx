@@ -33,6 +33,7 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
   });
 
   const [tailorjetItems, setTailorjetItems] = useState<TailorJetJobOrderItem[]>([]);
+  const [selectedTailorJetItem, setSelectedTailorJetItem] = useState<TailorJetItem | null>(null);
 
   const calculateItemTotal = (item: Omit<InvoiceItem, 'id' | 'total'>) => {
     const subtotal = item.quantity * item.rate;
@@ -58,6 +59,9 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
   };
 
   const handleItemSelect = (tailorjetItem: TailorJetItem) => {
+    // Store the selected TailorJet item for later use
+    setSelectedTailorJetItem(tailorjetItem);
+    
     // Set the current item with TailorJet data
     setCurrentItem({
       name: `${tailorjetItem.item_code} - ${tailorjetItem.name.en}`,
@@ -74,13 +78,52 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
       return;
     }
 
+    if (!selectedTailorJetItem) {
+      alert('Please select an item from TailorJet search');
+      return;
+    }
+
     const newItem: InvoiceItem = {
       id: Date.now().toString(),
       ...currentItem,
       total: calculateItemTotal(currentItem),
     };
 
+    // Create TailorJet job order item structure
+    const discountPercentage = 0;
+    const lineAmount = currentItem.quantity * currentItem.rate;
+    const discountAmount = lineAmount * (discountPercentage / 100);
+    const amountExclVat = lineAmount - discountAmount;
+    const vatAmount = amountExclVat * ((currentItem.tax || 0) / 100);
+    const amountInclVat = amountExclVat + vatAmount;
+
+    const tailorjetItem: TailorJetJobOrderItem = {
+      item: {
+        id: selectedTailorJetItem.id,
+        item_code: selectedTailorJetItem.item_code,
+        label: selectedTailorJetItem.name.en,
+      },
+      item_description: currentItem.description || '',
+      unit: selectedTailorJetItem.measurement_unit.label,
+      quantity: currentItem.quantity.toString(),
+      unit_price: currentItem.rate.toFixed(3),
+      discount_percentage: discountPercentage.toString(),
+      line_amount: amountExclVat.toFixed(3),
+      vat_amount: vatAmount.toFixed(3),
+      header_discount: '0.000',
+      amount_excl_vat: amountExclVat.toFixed(3),
+      amount_incl_vat: amountInclVat.toFixed(3),
+      vat_product_group: {
+        id: selectedTailorJetItem.vat_group.id,
+        label: selectedTailorJetItem.vat_group.label,
+        vat_percentage: selectedTailorJetItem.vat_group.vat_percentage,
+      },
+      vat_percentage: selectedTailorJetItem.vat_group.vat_percentage,
+      discount_amount: discountAmount.toFixed(3),
+    };
+
     const updatedItems = [...invoice.items, newItem];
+    const updatedTailorjetItems = [...tailorjetItems, tailorjetItem];
     const totals = calculateInvoiceTotals(updatedItems);
 
     setInvoice({
@@ -88,6 +131,8 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
       items: updatedItems,
       ...totals,
     });
+    
+    setTailorjetItems(updatedTailorjetItems);
 
     setCurrentItem({
       name: '',
@@ -96,10 +141,14 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
       rate: 0,
       tax: 0,
     });
+    
+    setSelectedTailorJetItem(null);
   };
 
   const removeItem = (id: string) => {
+    const itemIndex = invoice.items.findIndex(item => item.id === id);
     const updatedItems = invoice.items.filter(item => item.id !== id);
+    const updatedTailorjetItems = tailorjetItems.filter((_, index) => index !== itemIndex);
     const totals = calculateInvoiceTotals(updatedItems);
     
     setInvoice({
@@ -107,6 +156,8 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
       items: updatedItems,
       ...totals,
     });
+    
+    setTailorjetItems(updatedTailorjetItems);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,39 +198,7 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
         customer_location: { id: 'a420edfe-8f0e-4a44-b69d-59bf0de06516', label: 'Showroom (CL-8OTQRODRZV7IX)', is_primary: 1 },
         vat_group: { id: '8f6a6b25-4149-4f42-83d4-2ce480fdcd59', label: 'Domestic R' },
         branch: { id: '5349a577-ead9-11f0-8047-e4a8dfd375a3', name: 'MANAMA', label: 'MANAMA' },
-        items: invoice.items.map((item) => {
-          const discountPercentage = 0;
-          const lineAmount = item.quantity * item.rate;
-          const discountAmount = lineAmount * (discountPercentage / 100);
-          const amountExclVat = lineAmount - discountAmount;
-          const vatAmount = amountExclVat * ((item.tax || 0) / 100);
-          const amountInclVat = amountExclVat + vatAmount;
-          
-          return {
-            item: {
-              id: item.id,
-              item_code: item.name.split(' - ')[0] || item.name,
-              label: item.name,
-            },
-            item_description: item.description || '',
-            unit: 'Pcs',
-            quantity: item.quantity.toString(),
-            unit_price: item.rate.toFixed(3),
-            discount_percentage: discountPercentage.toString(),
-            line_amount: amountExclVat.toFixed(3),
-            vat_amount: vatAmount.toFixed(3),
-            header_discount: '0.000',
-            amount_excl_vat: amountExclVat.toFixed(3),
-            amount_incl_vat: amountInclVat.toFixed(3),
-            vat_product_group: {
-              id: 'b4e09ae9-e375-4c37-95f0-fdf0c21df353',
-              label: `Vat ${item.tax || 0}`,
-              vat_percentage: (item.tax || 0).toFixed(2),
-            },
-            vat_percentage: (item.tax || 0).toFixed(2),
-            discount_amount: discountAmount.toFixed(3),
-          };
-        }),
+        items: tailorjetItems,
         order_detail_info: '',
         discount_percentage: '',
         discount_amount: '0.000',
@@ -386,27 +405,27 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left">Item</th>
-                    <th className="px-4 py-2 text-right">Qty</th>
-                    <th className="px-4 py-2 text-right">Rate</th>
-                    <th className="px-4 py-2 text-right">Tax</th>
-                    <th className="px-4 py-2 text-right">Total</th>
+                    <th className="px-4 py-2 text-left text-gray-900 font-semibold">Item</th>
+                    <th className="px-4 py-2 text-right text-gray-900 font-semibold">Qty</th>
+                    <th className="px-4 py-2 text-right text-gray-900 font-semibold">Rate</th>
+                    <th className="px-4 py-2 text-right text-gray-900 font-semibold">Tax</th>
+                    <th className="px-4 py-2 text-right text-gray-900 font-semibold">Total</th>
                     <th className="px-4 py-2"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {invoice.items.map((item) => (
+                   {invoice.items.map((item) => (
                     <tr key={item.id} className="border-t">
                       <td className="px-4 py-2">
-                        <div className="font-medium">{item.name}</div>
+                        <div className="font-medium text-gray-900">{item.name}</div>
                         {item.description && (
-                          <div className="text-sm text-gray-500">{item.description}</div>
+                          <div className="text-sm text-gray-700">{item.description}</div>
                         )}
                       </td>
-                      <td className="px-4 py-2 text-right">{item.quantity}</td>
-                      <td className="px-4 py-2 text-right">${item.rate.toFixed(2)}</td>
-                      <td className="px-4 py-2 text-right">{item.tax}%</td>
-                      <td className="px-4 py-2 text-right">${item.total.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-gray-900">{item.quantity}</td>
+                      <td className="px-4 py-2 text-right text-gray-900">${item.rate.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-gray-900">{item.tax}%</td>
+                      <td className="px-4 py-2 text-right text-gray-900 font-semibold">${item.total.toFixed(2)}</td>
                       <td className="px-4 py-2 text-right">
                         <button
                           type="button"
@@ -425,15 +444,15 @@ export default function InvoiceForm({ onSubmit, bearerToken }: InvoiceFormProps)
             {/* Totals */}
             <div className="mt-6 flex justify-end">
               <div className="w-64 space-y-2">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>${invoice.subtotal.toFixed(2)}</span>
+                <div className="flex justify-between text-gray-900">
+                  <span className="font-medium">Subtotal:</span>
+                  <span className="font-medium">${invoice.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Tax:</span>
-                  <span>${invoice.tax.toFixed(2)}</span>
+                <div className="flex justify-between text-gray-900">
+                  <span className="font-medium">Tax:</span>
+                  <span className="font-medium">${invoice.tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-lg border-t pt-2">
+                <div className="flex justify-between font-bold text-lg border-t pt-2 text-gray-900">
                   <span>Total:</span>
                   <span>${invoice.total.toFixed(2)}</span>
                 </div>
